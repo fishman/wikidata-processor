@@ -5,6 +5,7 @@ go 1.22.0
 toolchain go1.23.1
 
 require (
+	github.com/knakk/rdf v0.0.0-20190304171630-8521bf4c5042
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
