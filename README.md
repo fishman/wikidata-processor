@@ -9,8 +9,8 @@ This project requires Go to be installed. On OS X with Homebrew you can just run
 Running it then should be as simple as:
 
 ```console
-$ make
-$ ./bin/wikidata-processor
+$ make build
+$ ./bin/wikidata-processor --output=out_dir --chunksize=3000000 --language=en ~/Downloads/latest-all.ttl.gz 
 ```
 
 ### Testing
