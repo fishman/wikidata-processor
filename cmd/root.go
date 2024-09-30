@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"bufio"
-	"bytes"
 	"compress/bzip2"
 	"compress/gzip"
 	"fmt"
@@ -14,7 +13,6 @@ import (
 	"sync"
 
 	"github.com/fishman/wikidata-processor/log"
-	"github.com/knakk/rdf"
 	"github.com/spf13/cobra"
 )
 
@@ -97,47 +95,6 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-}
-
-func filterRDF(data []byte, language string) ([]byte, error) {
-	var buffer bytes.Buffer
-	decoder := rdf.NewTripleDecoder(bytes.NewReader(data), rdf.Turtle)
-
-	// Create a map to store filtered triples
-	triples := make(map[rdf.Triple]struct{})
-
-	// Read and filter triples
-	for {
-		triple, err := decoder.Decode()
-		if err != nil {
-			if err == rdf.ErrEncoderClosed {
-				break
-			}
-			return nil, err
-		}
-
-		// Check if the predicate is one of the desired ones
-		if triple.Pred.String() == "http://www.w3.org/2000/01/rdf-schema#label" ||
-			triple.Pred.String() == "http://www.w3.org/2004/02/skos/core#prefLabel" ||
-			triple.Pred.String() == "http://schema.org/name" ||
-			triple.Pred.String() == "http://schema.org/description" ||
-			triple.Pred.String() == "http://www.w3.org/2004/02/skos/core#altLabel" {
-
-			// Filter by language tag
-			if literal, ok := triple.Obj.(rdf.Literal); ok && literal.Lang() == language {
-				triples[triple] = struct{}{}
-			}
-		}
-	}
-
-	// Write filtered triples to buffer
-	for triple := range triples {
-		if _, err := buffer.WriteString(fmt.Sprintf("%s %s %s .\n", triple.Subj, triple.Pred, triple.Obj)); err != nil {
-			return nil, err
-		}
-	}
-
-	return buffer.Bytes(), nil
 }
 
 func filterLanguage(input *bufio.Scanner, chunkSize int, wg *sync.WaitGroup, language string) {
